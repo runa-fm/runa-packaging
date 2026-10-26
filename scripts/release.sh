@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-REPO="alexm-dev/runa"
+REPO="runa-fm/runa"
 WORKFLOW="$REPO/.github/workflows/releases.yml"
 AUR_URL="https://aur.archlinux.org/runa.git"
 AUR_PUSH_URL="ssh://aur@aur.archlinux.org/runa.git"
@@ -33,7 +33,7 @@ ASSETS=(SHA256SUMS.txt "${PACKAGE_FILES[@]}")
 VERSION_RE='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
 SUMS_RE='^([0-9a-f]{64}) [ *](runa-[a-z0-9_.-]+)$'
 BREW_VERSION_RE='^(  version ")[0-9.]+"$'
-BREW_URL_RE='^ +url "https://github\.com/alexm-dev/runa/releases/download/'
+BREW_URL_RE='^ +url "https://github\.com/runa-fm/runa/releases/download/'
 BREW_URL_RE+='v#\{version\}/(runa-[a-z0-9_-]+\.tar\.gz)"$'
 BREW_SHA_RE='^( +sha256 ")([0-9a-f]{64})"$'
 
@@ -91,10 +91,10 @@ check_environment() {
     gh auth status >/dev/null 2>&1 || fail "gh is not logged in, run: gh auth login"
 }
 
-# Checks that a repository is checked out, belongs to alexm-dev and equals origin/main.
+# Checks that a repository is checked out, belongs to runa-fm and equals origin/main.
 check_repo() {
     local dir=$1 name=$2
-    local url_re="^(https://github\.com/|git@github\.com:)alexm-dev/$name(\.git)?$"
+    local url_re="^(https://github\.com/|git@github\.com:)runa-fm/$name(\.git)?$"
 
     local top=$PWD
     [[ $dir == . ]] || top=$PWD/$dir
@@ -131,7 +131,7 @@ check_package_files() {
     # shellcheck disable=SC2016
     for line in \
         'pkgname=runa' \
-        'url="https://github.com/alexm-dev/runa"' \
+        'url="https://github.com/runa-fm/runa"' \
         'source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")'; do
         grep -qFx -- "$line" "$PKGBUILD" || fail "PKGBUILD is missing the line: $line"
     done
