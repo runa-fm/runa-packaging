@@ -13,6 +13,7 @@ REPO="runa-fm/runa"
 WORKFLOW="$REPO/.github/workflows/releases.yml"
 AUR_URL="https://aur.archlinux.org/runa.git"
 AUR_PUSH_URL="ssh://aur@aur.archlinux.org/runa.git"
+ARCH_BOX="runa-arch"
 
 PKGBUILD="arch/PKGBUILD"
 SRCINFO="arch/.SRCINFO"
@@ -84,10 +85,12 @@ check_environment() {
     [[ $EUID -ne 0 ]] || fail "do not run this as root"
 
     local tool path
-    for tool in git gh jq sha256sum gzip cmp ssh updpkgsums makepkg; do
+    for tool in git gh jq sha256sum gzip cmp ssh toolbox; do
         path=$(command -v "$tool") || fail "$tool not found"
         [[ $(realpath -- "$path") == /usr/bin/* ]] || fail "$tool is $path, not a system binary"
     done
+    toolbox run -c "$ARCH_BOX" sh -c 'command -v updpkgsums && command -v makepkg' >/dev/null ||
+        fail "the $ARCH_BOX toolbox needs base-devel and pacman-contrib"
     gh auth status >/dev/null 2>&1 || fail "gh is not logged in, run: gh auth login"
 }
 
@@ -229,8 +232,8 @@ update_aur() {
     mkdir -- "$TMP/src"
     (
         cd arch
-        SRCDEST=$TMP/src updpkgsums
-        makepkg --printsrcinfo >.SRCINFO
+        toolbox run -c "$ARCH_BOX" env SRCDEST="$TMP/src" updpkgsums
+        toolbox run -c "$ARCH_BOX" makepkg --printsrcinfo >.SRCINFO
     )
 
     # GitHub writes the commit into the archive header
